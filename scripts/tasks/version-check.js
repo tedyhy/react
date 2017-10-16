@@ -7,7 +7,9 @@
 
 'use strict';
 
+// react 版本号
 const reactVersion = require('../../package.json').version;
+// 获取 react|react-dom|react-test-renderer|ReactVersion 的版本号
 const versions = {
   'packages/react/package.json': require('../../packages/react/package.json')
     .version,
@@ -21,6 +23,7 @@ const versions = {
 let allVersionsMatch = true;
 Object.keys(versions).forEach(function(name) {
   const version = versions[name];
+  // 如果有不匹配的，则输出出来
   if (version !== reactVersion) {
     allVersionsMatch = false;
     console.log(
@@ -32,6 +35,7 @@ Object.keys(versions).forEach(function(name) {
   }
 });
 
+// 如果有不匹配的，则退出脚本
 if (!allVersionsMatch) {
   process.exit(1);
 }

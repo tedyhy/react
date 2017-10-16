@@ -1,5 +1,6 @@
 'use strict';
 
+// 加载 rollup 及其插件
 const rollup = require('rollup').rollup;
 const babel = require('rollup-plugin-babel');
 const commonjs = require('rollup-plugin-commonjs');
