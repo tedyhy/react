@@ -21,6 +21,8 @@
 * [flow](https://flow.org/en/docs/usage/)
 
 #### scripts/rollup/build.js
+1.创建 build/packages、build/dist、build/facebook-www、build/react-native 目录
+2.生成异步任务队列（队列包括：packaging.js 内、bundles.js 内 bundles），通过 runWaterfall 递归执行异步任务。
 
 
 

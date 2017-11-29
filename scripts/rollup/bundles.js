@@ -1,5 +1,6 @@
 'use strict';
 
+// 包类型定义
 const bundleTypes = {
   UMD_DEV: 'UMD_DEV',
   UMD_PROD: 'UMD_PROD',
@@ -20,6 +21,7 @@ const FB_PROD = bundleTypes.FB_PROD;
 const RN_DEV = bundleTypes.RN_DEV;
 const RN_PROD = bundleTypes.RN_PROD;
 
+// babel 编译基本选项
 const babelOptsReact = {
   exclude: 'node_modules/**',
   presets: [],
@@ -28,11 +30,15 @@ const babelOptsReact = {
 
 const babelOptsReactART = Object.assign({}, babelOptsReact, {
   // Include JSX
+  // 参考
+  // https://www.npmjs.com/package/babel-preset-react
+  // https://nodejs.org/api/modules.html#modules_require
   presets: babelOptsReact.presets.concat([
     require.resolve('babel-preset-react'),
   ]),
 });
 
+// 所有类型包打包配置
 const bundles = [
   /******* Isomorphic *******/
   {
@@ -370,8 +376,11 @@ const bundles = [
 ];
 
 // Based on deep-freeze by substack (public domain)
+// 深度冻结数组、对象或函数
+// 参考 https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
 function deepFreeze(o) {
   Object.freeze(o);
+  // [0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 'length']
   Object.getOwnPropertyNames(o).forEach(function(prop) {
     if (
       o[prop] !== null &&
@@ -385,6 +394,7 @@ function deepFreeze(o) {
 }
 
 // Don't accidentally mutate config as part of the build
+// 冻结配置选项，避免意外修改
 deepFreeze(bundles);
 
 module.exports = {

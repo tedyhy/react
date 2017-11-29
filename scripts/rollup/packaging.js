@@ -7,6 +7,7 @@ const resolve = require('path').resolve;
 const Bundles = require('./bundles');
 const asyncCopyTo = require('./utils').asyncCopyTo;
 
+// 包类型定义
 const UMD_DEV = Bundles.bundleTypes.UMD_DEV;
 const UMD_PROD = Bundles.bundleTypes.UMD_PROD;
 const NODE_DEV = Bundles.bundleTypes.NODE_DEV;
@@ -18,11 +19,13 @@ const RN_PROD = Bundles.bundleTypes.RN_PROD;
 
 const facebookWWW = 'facebook-www';
 // these files need to be copied to the facebook-www build
+// 这些文件需要拷贝到 build/facebook-www/ 目录下
 const facebookWWWSrcDependencies = [
   'src/renderers/dom/shared/eventPlugins/TapEventPlugin.js',
 ];
 
 // these files need to be copied to the react-native build
+// 这些文件需要拷贝到 build/react-native/ 目录下
 const reactNativeSrcDependencies = [
   // TODO: copy this to RN repository and delete from React
   'src/renderers/shared/stack/PooledClass.js',
@@ -30,6 +33,7 @@ const reactNativeSrcDependencies = [
   'src/renderers/native/ReactNativeTypes.js',
 ];
 
+// 获取包名
 function getPackageName(name) {
   if (name.indexOf('/') !== -1) {
     return name.split('/')[0];
@@ -37,12 +41,16 @@ function getPackageName(name) {
   return name;
 }
 
+// 创建 react-native 目录
 function createReactNativeBuild() {
   // create the react-native folder for FB bundles
+  // 创建 build/react-native 目录用于放置 FB bundles
   fs.mkdirSync(join('build', 'react-native'));
   // create the react-native shims folder for FB shims
+  // 创建 build/react-native/shims 目录用于放置 FB shims
   fs.mkdirSync(join('build', 'react-native', 'shims'));
   // copy in all the shims from build/rollup/shims/react-native
+  // 将 build/rollup/shims/react-native 目录下的所有 shims 拷贝到 build/react-native/shims 目录下
   const from = join('scripts', 'rollup', 'shims', 'react-native');
   const to = join('build', 'react-native', 'shims');
 
@@ -50,7 +58,12 @@ function createReactNativeBuild() {
     let promises = [];
     // we also need to copy over some specific files from src
     // defined in reactNativeSrcDependencies
+    // reactNativeSrcDependencies 指定了 src 目录下哪些文件需要拷贝
     for (const srcDependency of reactNativeSrcDependencies) {
+      // 遍历拷贝文件
+      // 如：'src/renderers/shared/fiber/isomorphic/ReactTypes.js'，
+      // from = '/Users/xxx/react/src/renderers/shared/fiber/isomorphic/ReactTypes.js'
+      // to = 'build/react-native/shims/ReactTypes.js'
       promises.push(
         asyncCopyTo(resolve(srcDependency), join(to, basename(srcDependency)))
       );
@@ -59,12 +72,16 @@ function createReactNativeBuild() {
   });
 }
 
+// 创建 facebook-www 目录
 function createFacebookWWWBuild() {
   // create the facebookWWW folder for FB bundles
+  // 创建 build/facebook-www 目录用于放置 FB bundles
   fs.mkdirSync(join('build', facebookWWW));
   // create the facebookWWW shims folder for FB shims
+  // 创建 build/facebook-www/shims 目录用于放置 FB shims
   fs.mkdirSync(join('build', facebookWWW, 'shims'));
   // copy in all the shims from build/rollup/shims/facebook-www
+  // 将 build/rollup/shims/facebook-www 目录下的所有 shims 拷贝到 build/facebook-www/shims 目录下
   const from = join('scripts', 'rollup', 'shims', facebookWWW);
   const to = join('build', facebookWWW, 'shims');
 
@@ -72,7 +89,12 @@ function createFacebookWWWBuild() {
     let promises = [];
     // we also need to copy over some specific files from src
     // defined in facebookWWWSrcDependencies
+    // facebookWWWSrcDependencies 指定了 src 目录下哪些文件需要拷贝
     for (const srcDependency of facebookWWWSrcDependencies) {
+      // 遍历拷贝文件
+      // 如：'src/renderers/dom/shared/eventPlugins/TapEventPlugin.js'，
+      // from = '/Users/xxx/react/src/renderers/dom/shared/eventPlugins/TapEventPlugin.js'
+      // to = 'build/facebook-www/shims/TapEventPlugin.js'
       promises.push(
         asyncCopyTo(resolve(srcDependency), join(to, basename(srcDependency)))
       );

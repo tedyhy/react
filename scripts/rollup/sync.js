@@ -9,6 +9,7 @@ const DEFAULT_WWW_PATH = '~/www/';
 const RELATIVE_RN_PATH = 'xplat/js/react-native-github/Libraries/Renderer/';
 const RELATIVE_WWW_PATH = 'html/shared/react/';
 
+// 处理同步
 function doSync(buildPath, destPath) {
   console.log(`${chalk.bgYellow.black(' SYNCING ')} React to ${destPath}`);
 

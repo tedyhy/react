@@ -52,6 +52,7 @@ const mangleRegex = new RegExp(
   'g'
 );
 
+// 根据打包类型获取最终名称或版本号
 function getHeaderSanityCheck(bundleType, hasteName) {
   switch (bundleType) {
     case FB_DEV:
@@ -78,6 +79,7 @@ function getHeaderSanityCheck(bundleType, hasteName) {
   }
 }
 
+// 根据打包类型、名称生成最终类库 banner
 function getBanner(bundleType, hasteName, filename) {
   switch (bundleType) {
     // UMDs are not wrapped in conditions.
@@ -112,6 +114,7 @@ function getBanner(bundleType, hasteName, filename) {
   }
 }
 
+// 根据打包类型生成最终类库 footer
 function getFooter(bundleType) {
   // Only need a footer if getBanner() has an opening brace.
   switch (bundleType) {
@@ -125,6 +128,7 @@ function getFooter(bundleType) {
   }
 }
 
+// 根据打包类型更新 BabelConfig
 function updateBabelConfig(babelOpts, bundleType) {
   switch (bundleType) {
     case FB_DEV:
@@ -158,6 +162,7 @@ function updateBabelConfig(babelOpts, bundleType) {
   }
 }
 
+// 输出 rollup 警告信息
 function handleRollupWarnings(warning) {
   if (warning.code === 'UNRESOLVED_IMPORT') {
     console.error(warning.message);
@@ -166,6 +171,7 @@ function handleRollupWarnings(warning) {
   console.warn(warning.message || warning);
 }
 
+// 更新 BundleConfig
 function updateBundleConfig(config, filename, format, bundleType, hasteName) {
   return Object.assign({}, config, {
     banner: getBanner(bundleType, hasteName, filename),
@@ -176,6 +182,7 @@ function updateBundleConfig(config, filename, format, bundleType, hasteName) {
   });
 }
 
+// 生成环境变量
 function stripEnvVariables(production) {
   return {
     __DEV__: production ? 'false' : 'true',
@@ -183,6 +190,7 @@ function stripEnvVariables(production) {
   };
 }
 
+// 获取包类型格式名称
 function getFormat(bundleType) {
   switch (bundleType) {
     case UMD_DEV:
@@ -198,6 +206,7 @@ function getFormat(bundleType) {
   }
 }
 
+// 根据名称和包类型生成最终包名称
 function getFilename(name, hasteName, bundleType) {
   // we do this to replace / to -, for react-dom/server
   name = name.replace('/', '-');
@@ -219,6 +228,7 @@ function getFilename(name, hasteName, bundleType) {
   }
 }
 
+// uglify 压缩配置
 function uglifyConfig(configs) {
   var mangle = configs.mangle;
   var manglePropertiesOnProd = configs.manglePropertiesOnProd;
@@ -275,6 +285,7 @@ function uglifyConfig(configs) {
   };
 }
 
+// 获取 CommonJSConfig 信息
 function getCommonJsConfig(bundleType) {
   switch (bundleType) {
     case UMD_DEV:
@@ -297,6 +308,7 @@ function getCommonJsConfig(bundleType) {
   }
 }
 
+// 获取 rollup config plugins 值
 function getPlugins(
   entry,
   babelOpts,
@@ -410,6 +422,7 @@ function getPlugins(
   return plugins;
 }
 
+// 使用 rollup 打包
 function createBundle(bundle, bundleType) {
   const shouldSkipBundleType = bundle.bundleTypes.indexOf(bundleType) === -1;
   if (shouldSkipBundleType) {
@@ -491,18 +504,24 @@ function createBundle(bundle, bundleType) {
 }
 
 // clear the build directory
+// 打包入口，先清理 build 目录
 rimraf('build', () => {
   // create a new build directory
+  // 创建新的 build 目录
   fs.mkdirSync('build');
   // create the packages folder for NODE+UMD bundles
+  // 创建 build/packages 目录用于放置 NODE+UMD bundles
   fs.mkdirSync(join('build', 'packages'));
   // create the dist folder for UMD bundles
+  // 创建 build/dist 目录用于放置 UMD bundles
   fs.mkdirSync(join('build', 'dist'));
 
+  // 默认 task
   const tasks = [
     Packaging.createFacebookWWWBuild,
     Packaging.createReactNativeBuild,
   ];
+  // 根据打包类型添加多个打包 task
   for (const bundle of Bundles.bundles) {
     tasks.push(
       () => createBundle(bundle, UMD_DEV),
@@ -525,6 +544,7 @@ rimraf('build', () => {
   // rather than run concurently, opt to run them serially
   // this helps improve console/warning/error output
   // and fixes a bunch of IO failures that sometimes occured
+  // 异步执行任务队列
   return runWaterfall(tasks)
     .then(() => {
       // output the results
@@ -550,15 +570,19 @@ function runWaterfall(promiseFactories) {
     return Promise.resolve();
   }
 
+  // 取第一个任务
   const head = promiseFactories[0];
+  // 取之后所有任务队列
   const tail = promiseFactories.slice(1);
 
+  // 取第一个任务的 promise 对象，如果没有则报错终止任务队列
   const nextPromiseFactory = head;
   const nextPromise = nextPromiseFactory();
   if (!nextPromise || typeof nextPromise.then !== 'function') {
     throw new Error('runWaterfall() received something that is not a Promise.');
   }
 
+  // 递归执行异步任务
   return nextPromise.then(() => {
     return runWaterfall(tail);
   });
