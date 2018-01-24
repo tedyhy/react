@@ -11,14 +11,17 @@
 "lint": "node ./scripts/tasks/eslint.js",
 // 对有更改的 js 文件进行 eslint 校验
 "linc": "git diff --name-only --diff-filter=ACMRTUB `git merge-base HEAD master` | grep '\\.js$' | xargs eslint --",
-// 根据 package.json 里 devEngines 字段来校验开发者当前 node|npm 版本环境是否匹配
+// npm install 后，根据 package.json 里 devEngines 字段来校验开发者当前环境中 node|npm 版本是否匹配
 "postinstall": "node node_modules/fbjs-scripts/node/check-dev-engines.js package.json",
-// 校验版本并构建发布 react
+// 通过 jest 测试
+"test": "jest",
+// 校验版本并通过 rollup 构建发布 react
 "build": "npm run version-check && node scripts/rollup/build.js",
 ```
 
 * [postinstall](https://docs.npmjs.com/misc/scripts)
 * [flow](https://flow.org/en/docs/usage/)
+* [jest](https://facebook.github.io/jest/)
 
 #### scripts/rollup/build.js
 1. 创建 build/packages、build/dist、build/facebook-www、build/react-native 目录

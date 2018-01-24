@@ -1,6 +1,6 @@
 'use strict';
 
-// 包类型定义
+// bundle 类型定义
 const bundleTypes = {
   UMD_DEV: 'UMD_DEV',
   UMD_PROD: 'UMD_PROD',

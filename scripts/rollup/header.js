@@ -1,5 +1,6 @@
 'use strict';
 
+// 生成 React 头部版权信息
 function getProvidesHeader(hasteFinalName) {
   return `/**
  * Copyright (c) 2013-present, Facebook, Inc.

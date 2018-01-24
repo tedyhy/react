@@ -9,7 +9,7 @@ const DEFAULT_WWW_PATH = '~/www/';
 const RELATIVE_RN_PATH = 'xplat/js/react-native-github/Libraries/Renderer/';
 const RELATIVE_WWW_PATH = 'html/shared/react/';
 
-// 处理同步
+// 将 React 异步 copy 到指定目录
 function doSync(buildPath, destPath) {
   console.log(`${chalk.bgYellow.black(' SYNCING ')} React to ${destPath}`);
 
@@ -21,6 +21,7 @@ function doSync(buildPath, destPath) {
   return promise;
 }
 
+// copy ReactDom
 function syncReactDom(buildPath, wwwPath) {
   wwwPath = typeof wwwPath === 'string' ? wwwPath : DEFAULT_WWW_PATH;
 
@@ -33,6 +34,7 @@ function syncReactDom(buildPath, wwwPath) {
   return doSync(buildPath, destPath);
 }
 
+// copy ReactNative
 function syncReactNative(buildPath, fbSourcePath) {
   fbSourcePath = typeof fbSourcePath === 'string'
     ? fbSourcePath

@@ -25,6 +25,7 @@ const Packaging = require('./packaging');
 const Header = require('./header');
 const closure = require('rollup-plugin-closure-compiler-js');
 
+// bundle 类型定义
 const UMD_DEV = Bundles.bundleTypes.UMD_DEV;
 const UMD_PROD = Bundles.bundleTypes.UMD_PROD;
 const NODE_DEV = Bundles.bundleTypes.NODE_DEV;
@@ -34,6 +35,7 @@ const FB_PROD = Bundles.bundleTypes.FB_PROD;
 const RN_DEV = Bundles.bundleTypes.RN_DEV;
 const RN_PROD = Bundles.bundleTypes.RN_PROD;
 
+// 获取 React 版本，bundle 类型、名称，及 sync-fbsource、sync-www 参数
 const reactVersion = require('../../package.json').version;
 const requestedBundleTypes = (argv.type || '')
   .split(',')

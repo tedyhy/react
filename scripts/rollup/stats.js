@@ -1,10 +1,12 @@
 'use strict';
 
+// 各个 bundle 的数据统计，最后以表格的形式输出到终端
 const Table = require('cli-table');
 const filesize = require('filesize');
 const chalk = require('chalk');
 const join = require('path').join;
 const fs = require('fs');
+// 生成的各个 bundle 大小信息
 const prevBuildResults = require('./results.json');
 
 const currentBuildResults = {
@@ -12,6 +14,7 @@ const currentBuildResults = {
   bundleSizes: Object.assign({}, prevBuildResults.bundleSizes),
 };
 
+// 将新 bundle 的统计信息写入 'scripts/rollup/results.json'
 function saveResults() {
   fs.writeFileSync(
     join('scripts', 'rollup', 'results.json'),
@@ -19,6 +22,7 @@ function saveResults() {
   );
 }
 
+// 计算文件改变大小的百分比
 function percentChange(prev, current) {
   const change = Math.floor((current - prev) / prev * 100);
 
@@ -29,6 +33,7 @@ function percentChange(prev, current) {
   }
 }
 
+// 以表格形式打印 bundle 统计信息输出到终端
 function printResults() {
   const table = new Table({
     head: [
