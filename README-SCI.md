@@ -26,6 +26,345 @@
 #### scripts/rollup/build.js
 1. 创建 build/packages、build/dist、build/facebook-www、build/react-native 目录
 2. 生成异步任务队列（队列包括：packaging.js 内、bundles.js 内 bundles），通过 runWaterfall 递归执行异步任务。
+```js
+const tasks = [
+	Packaging.createFacebookWWWBuild,
+	Packaging.createReactNativeBuild,
+	/******* Isomorphic *******/
+	{
+		babelOpts: babelOptsReact,
+		bundleTypes: [UMD_DEV, UMD_PROD, NODE_DEV, NODE_PROD, FB_DEV, FB_PROD],
+		config: {
+			destDir: 'build/',
+			moduleName: 'React',
+			sourceMap: false,
+		},
+		entry: 'src/isomorphic/ReactEntry',
+		externals: [
+			'create-react-class/factory',
+			'prop-types',
+			'prop-types/checkPropTypes',
+		],
+		fbEntry: 'src/isomorphic/ReactEntry',
+		hasteName: 'React',
+		isRenderer: false,
+		label: 'core',
+		manglePropertiesOnProd: false,
+		name: 'react',
+		paths: [
+			'src/isomorphic/**/*.js',
+
+			'src/ReactVersion.js',
+			'src/shared/**/*.js',
+		],
+	},
+
+	/******* React DOM *******/
+	{
+		babelOpts: babelOptsReact,
+		bundleTypes: [UMD_DEV, UMD_PROD, NODE_DEV, NODE_PROD, FB_DEV, FB_PROD],
+		config: {
+			destDir: 'build/',
+			globals: {
+				react: 'React',
+			},
+			moduleName: 'ReactDOM',
+			sourceMap: false,
+		},
+		entry: 'src/renderers/dom/fiber/ReactDOMFiberEntry',
+		externals: ['prop-types', 'prop-types/checkPropTypes'],
+		fbEntry: 'src/fb/ReactDOMFiberFBEntry',
+		hasteName: 'ReactDOMFiber',
+		isRenderer: true,
+		label: 'dom-fiber',
+		manglePropertiesOnProd: false,
+		name: 'react-dom',
+		paths: [
+			'src/renderers/dom/**/*.js',
+			'src/renderers/shared/**/*.js',
+
+			'src/ReactVersion.js',
+			'src/shared/**/*.js',
+		],
+	}, {
+		babelOpts: babelOptsReact,
+		bundleTypes: [FB_DEV, NODE_DEV],
+		config: {
+			destDir: 'build/',
+			globals: {
+				react: 'React',
+			},
+			moduleName: 'ReactTestUtils',
+			sourceMap: false,
+		},
+		entry: 'src/renderers/dom/test/ReactTestUtilsEntry',
+		externals: [
+			'prop-types',
+			'prop-types/checkPropTypes',
+			'react',
+			'react-dom',
+			'react-test-renderer', // TODO (bvaughn) Remove this dependency before 16.0.0
+		],
+		fbEntry: 'src/renderers/dom/test/ReactTestUtilsEntry',
+		hasteName: 'ReactTestUtils',
+		isRenderer: true,
+		label: 'test-utils',
+		manglePropertiesOnProd: false,
+		name: 'react-dom/test-utils',
+		paths: [
+			'src/renderers/dom/test/**/*.js',
+			'src/renderers/shared/**/*.js',
+			'src/renderers/testing/**/*.js', // TODO (bvaughn) Remove this dependency before 16.0.0
+
+			'src/ReactVersion.js',
+			'src/shared/**/*.js',
+		],
+	},
+	/* React DOM internals required for react-native-web (e.g., to shim native events from react-dom) */
+	{
+		babelOpts: babelOptsReact,
+		bundleTypes: [UMD_DEV, UMD_PROD, NODE_DEV, NODE_PROD, FB_DEV, FB_PROD],
+		config: {
+			destDir: 'build/',
+			globals: {
+				react: 'React',
+				'react-dom': 'ReactDOM',
+			},
+			moduleName: 'ReactDOMUnstableNativeDependencies',
+			sourceMap: false,
+		},
+		entry: 'src/renderers/dom/shared/ReactDOMUnstableNativeDependenciesEntry',
+		externals: [
+			'react-dom',
+			'ReactDOM',
+			'prop-types',
+			'prop-types/checkPropTypes',
+		],
+		fbEntry: 'src/renderers/dom/shared/ReactDOMUnstableNativeDependenciesEntry',
+		hasteName: 'ReactDOMUnstableNativeDependencies',
+		isRenderer: false,
+		label: 'dom-unstable-native-dependencies',
+		manglePropertiesOnProd: false,
+		name: 'react-dom/unstable-native-dependencies',
+		paths: [
+			'src/renderers/dom/**/*.js',
+			'src/renderers/shared/**/*.js',
+
+			'src/ReactVersion.js',
+			'src/shared/**/*.js',
+		],
+	},
+
+	/******* React DOM Server *******/
+	{
+		babelOpts: babelOptsReact,
+		bundleTypes: [UMD_DEV, UMD_PROD, NODE_DEV, NODE_PROD, FB_DEV, FB_PROD],
+		config: {
+			destDir: 'build/',
+			globals: {
+				react: 'React',
+			},
+			moduleName: 'ReactDOMServer',
+			sourceMap: false,
+		},
+		entry: 'src/renderers/dom/ReactDOMServerBrowserEntry',
+		externals: ['prop-types', 'prop-types/checkPropTypes'],
+		fbEntry: 'src/renderers/dom/ReactDOMServerBrowserEntry',
+		hasteName: 'ReactDOMServer',
+		isRenderer: true,
+		label: 'dom-server-browser',
+		manglePropertiesOnProd: false,
+		name: 'react-dom/server.browser',
+		paths: [
+			'src/renderers/dom/**/*.js',
+			'src/renderers/shared/**/*.js',
+			'src/ReactVersion.js',
+			'src/shared/**/*.js',
+		],
+	},
+
+	{
+		babelOpts: babelOptsReact,
+		bundleTypes: [NODE_DEV, NODE_PROD],
+		config: {
+			destDir: 'build/',
+			globals: {
+				react: 'React',
+			},
+			moduleName: 'ReactDOMNodeStream',
+			sourceMap: false,
+		},
+		entry: 'src/renderers/dom/ReactDOMServerNodeEntry',
+		externals: ['prop-types', 'prop-types/checkPropTypes', 'stream'],
+		isRenderer: true,
+		label: 'dom-server-server-node',
+		manglePropertiesOnProd: false,
+		name: 'react-dom/server.node',
+		paths: [
+			'src/renderers/dom/**/*.js',
+			'src/renderers/shared/**/*.js',
+			'src/ReactVersion.js',
+			'src/shared/**/*.js',
+		],
+	},
+
+	/******* React ART *******/
+	{
+		babelOpts: babelOptsReactART,
+		// TODO: we merge react-art repo into this repo so the NODE_DEV and NODE_PROD
+		// builds sync up to the building of the package directories
+		bundleTypes: [UMD_DEV, UMD_PROD, NODE_DEV, NODE_PROD, FB_DEV, FB_PROD],
+		config: {
+			destDir: 'build/',
+			globals: {
+				react: 'React',
+			},
+			moduleName: 'ReactART',
+			sourceMap: false,
+		},
+		entry: 'src/renderers/art/ReactARTFiberEntry',
+		externals: [
+			'art/modes/current',
+			'art/modes/fast-noSideEffects',
+			'art/core/transform',
+			'prop-types/checkPropTypes',
+			'react-dom',
+		],
+		fbEntry: 'src/renderers/art/ReactARTFiberEntry',
+		hasteName: 'ReactARTFiber',
+		isRenderer: true,
+		label: 'art-fiber',
+		manglePropertiesOnProd: false,
+		name: 'react-art',
+		paths: [
+			'src/renderers/art/**/*.js',
+			'src/renderers/shared/**/*.js',
+
+			'src/ReactVersion.js',
+			'src/shared/**/*.js',
+		],
+	},
+
+	/******* React Native *******/
+	{
+		babelOpts: babelOptsReact,
+		bundleTypes: [RN_DEV, RN_PROD],
+		config: {
+			destDir: 'build/',
+			moduleName: 'ReactNativeFiber',
+			sourceMap: false,
+		},
+		entry: 'src/renderers/native/ReactNativeFiberEntry',
+		externals: [
+			'ExceptionsManager',
+			'InitializeCore',
+			'Platform',
+			'RCTEventEmitter',
+			'TextInputState',
+			'UIManager',
+			'View',
+			'deepDiffer',
+			'deepFreezeAndThrowOnMutationInDev',
+			'flattenStyle',
+			'prop-types/checkPropTypes',
+		],
+		hasteName: 'ReactNativeFiber',
+		isRenderer: true,
+		label: 'native-fiber',
+		manglePropertiesOnProd: false,
+		name: 'react-native-renderer',
+		paths: [
+			'src/renderers/native/**/*.js',
+			'src/renderers/shared/**/*.js',
+
+			'src/ReactVersion.js',
+			'src/shared/**/*.js',
+		],
+		useFiber: true,
+	},
+
+	/******* React Test Renderer *******/
+	{
+		babelOpts: babelOptsReact,
+		bundleTypes: [FB_DEV, NODE_DEV],
+		config: {
+			destDir: 'build/',
+			moduleName: 'ReactTestRenderer',
+			sourceMap: false,
+		},
+		entry: 'src/renderers/testing/ReactTestRendererFiberEntry',
+		externals: ['prop-types/checkPropTypes'],
+		fbEntry: 'src/renderers/testing/ReactTestRendererFiberEntry',
+		hasteName: 'ReactTestRendererFiber',
+		isRenderer: true,
+		label: 'test-fiber',
+		manglePropertiesOnProd: false,
+		name: 'react-test-renderer',
+		paths: [
+			'src/renderers/native/**/*.js',
+			'src/renderers/shared/**/*.js',
+			'src/renderers/testing/**/*.js',
+
+			'src/ReactVersion.js',
+			'src/shared/**/*.js',
+		],
+	}, {
+		babelOpts: babelOptsReact,
+		bundleTypes: [FB_DEV, NODE_DEV],
+		config: {
+			destDir: 'build/',
+			moduleName: 'ReactShallowRenderer',
+			sourceMap: false,
+		},
+		entry: 'src/renderers/testing/ReactShallowRendererEntry',
+		externals: [
+			'react-dom',
+			'prop-types/checkPropTypes',
+			'react-test-renderer',
+		],
+		fbEntry: 'src/renderers/testing/ReactShallowRendererEntry',
+		hasteName: 'ReactShallowRenderer',
+		isRenderer: true,
+		label: 'shallow-renderer',
+		manglePropertiesOnProd: false,
+		name: 'react-test-renderer/shallow',
+		paths: [
+			'src/renderers/shared/**/*.js',
+			'src/renderers/testing/**/*.js',
+			'src/shared/**/*.js',
+		],
+	},
+
+	/******* React Noop Renderer (used only for fixtures/fiber-debugger) *******/
+	{
+		babelOpts: babelOptsReact,
+		bundleTypes: [NODE_DEV],
+		config: {
+			destDir: 'build/',
+			globals: {
+				react: 'React',
+			},
+			moduleName: 'ReactNoop',
+			sourceMap: false,
+		},
+		entry: 'src/renderers/noop/ReactNoopEntry',
+		externals: ['prop-types/checkPropTypes', 'jest-matchers'],
+		isRenderer: true,
+		label: 'noop-fiber',
+		manglePropertiesOnProd: false,
+		name: 'react-noop-renderer',
+		paths: [
+			'src/renderers/noop/**/*.js',
+			'src/renderers/shared/**/*.js',
+
+			'src/ReactVersion.js',
+			'src/shared/**/*.js',
+		],
+	},
+	syncReactNative(join('build', 'react-native'), syncFbsource),
+	syncReactDom(join('build', 'facebook-www'), syncWww),
+];
+```
 3. 生成包
 ┌──────────────────────────────────────────────────────────────────────┬───────────┬──────────────┬───────┬───────────┬──────────────┬───────┐
 │ Bundle                                                               │ Prev Size │ Current Size │ Diff  │ Prev Gzip │ Current Gzip │ Diff  │

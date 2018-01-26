@@ -103,6 +103,7 @@ function createFacebookWWWBuild() {
   });
 }
 
+// copy bundle 到 build/packages 目录
 function copyBundleIntoNodePackage(packageName, filename, bundleType) {
   const packageDirectory = resolve(`./build/packages/${packageName}`);
 
@@ -167,14 +168,18 @@ function createNodePackage(bundleType, packageName, filename) {
   return Promise.resolve();
 }
 
+// 根据 bundleType 生成 bundle 生成目录 dest
 function getPackageDestination(config, bundleType, filename) {
   let dest = config.destDir + filename;
 
   if (bundleType === FB_DEV || bundleType === FB_PROD) {
+    // 生成到 facebook-www 目录
     dest = `${config.destDir}${facebookWWW}/${filename}`;
   } else if (bundleType === UMD_DEV || bundleType === UMD_PROD) {
+    // 生成到 dist 目录
     dest = `${config.destDir}dist/${filename}`;
   } else if (bundleType === RN_DEV || bundleType === RN_PROD) {
+    // 生成到 react-native 目录
     dest = `${config.destDir}react-native/${filename}`;
   }
   return dest;

@@ -47,6 +47,7 @@ const syncFbsource = argv['sync-fbsource'];
 const syncWww = argv['sync-www'];
 
 // used for when we property mangle with uglify/gcc
+// uglify/gcc 对属性 mangle 的白名单正则表达式
 const mangleRegex = new RegExp(
   `^(?${propertyMangleWhitelist
     .map(prop => `!${escapeStringRegexp(prop)}`)
