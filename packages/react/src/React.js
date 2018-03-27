@@ -25,6 +25,7 @@ import {
 } from './ReactElementValidator';
 import ReactDebugCurrentFrame from './ReactDebugCurrentFrame';
 
+// React 是一个对象，包含了 Component 等一系列属性或方法
 var React = {
   Children: {
     map,
@@ -34,12 +35,15 @@ var React = {
     only,
   },
 
+  // Component 类
   Component,
   PureComponent,
   unstable_AsyncComponent: AsyncComponent,
 
+  // 支持 Fragment
   Fragment: REACT_FRAGMENT_TYPE,
 
+  // Element 相关方法
   createElement: __DEV__ ? createElementWithValidation : createElement,
   cloneElement: __DEV__ ? cloneElementWithValidation : cloneElement,
   createFactory: __DEV__ ? createFactoryWithValidation : createFactory,
